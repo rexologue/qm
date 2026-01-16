@@ -2,6 +2,11 @@
 #define QM_FUNCTIONS_HPP
 
 #include <vector>
+#include <cstddef>
+
+#if __has_include(<stdfloat>)
+    #include <stdfloat>
+#endif
 
 #include "containers/array.hpp"
 #include "math/helpers.hpp"
@@ -24,14 +29,40 @@
 // Эти алиасы должны существовать, чтобы пользователь мог легко выбрать точность.
 // Если в проекте появятся реальные half/float128 типы — замените здесь.
 
-using Float16 = float;        ///< Заглушка: если нет half/float16, используем float.
-using Float32 = float;
-using Float64 = double;
-using Float80 = long double;  ///< Обычно соответствует расширенной точности (если поддерживается).
-using Float128 = long double; ///< Заглушка: если нет 128-битного типа, используем long double.
+// ---- Float16 ----
+#ifdef __STDCPP_FLOAT16_T__
+    using Float16 = std::float16_t;
+#else
+    using Float16 = float; // fallback
+#endif
+
+// ---- Float32 ----
+#ifdef __STDCPP_FLOAT32_T__
+    using Float32 = std::float32_t;
+#else
+    using Float32 = float; // fallback
+#endif
+
+// ---- Float64 ----
+#ifdef __STDCPP_FLOAT64_T__
+    using Float64 = std::float64_t;
+#else
+    using Float64 = double; // fallback
+#endif
+
+// ---- Float80 ----
+// В стандарте нет std::float80_t, поэтому только long double.
+using Float80 = long double;
+
+// ---- Float128 ----
+#ifdef __STDCPP_FLOAT128_T__
+    using Float128 = std::float128_t;
+#else
+    using Float128 = long double; // fallback
+#endif
 
 /// Тип точности для всей системы: перепишите на Float32/Float64/Float80/Float128.
-typedef Float128 FuncFloat;
+using FuncFloat = Float128;
 
 /**
  * @brief Указатель на нелинейную функцию системы F(x)=0.

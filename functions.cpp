@@ -115,23 +115,23 @@
 /**
  * @brief Пример: уравнение 1 (2D система).
  *
- * f1(x, y) = x^2 + y^2 - 1
+ * f1(x, y) = x - sin(y + 1) + 1.2
  */
 template <miv::math::FloatNumber T>
 inline T func1(miv::array<T> &x)
 {
-    return x[0] * x[0] + x[1] * x[1] - static_cast<T>(1);
+    return x[0] - std::sin(x[1] + 1) + static_cast<T>(1.2);
 }
 
 /**
  * @brief Пример: уравнение 2 (2D система).
  *
- * f2(x, y) = x - y
+ * f2(x, y) = cos(x) + 2y - 2
  */
 template <miv::math::FloatNumber T>
 inline T func2(miv::array<T> &x)
 {
-    return x[0] - x[1];
+    return std::cos(x[0]) + 2*x[1] - static_cast<T>(2);
 }
 
 /**
