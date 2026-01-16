@@ -4,6 +4,7 @@
 #include "containers/matrix.hpp"
 
 #include "math/linalg.hpp"
+#include "math/equation_system.hpp"
 #include "math/functional.hpp"
 
 int main()
@@ -49,6 +50,17 @@ int main()
         std::cout << s(0, c) << "\t";
     }
     std::cout << "\n";
+
+    miv::matrix<double> A_sys{{1.0, 1.0}, {2.0, -1.0}};
+    miv::matrix<double> b_sys{{3.0}, {0.0}};
+    miv::math::equation_system<double> system(A_sys, b_sys);
+    auto solution = system.solve_lup();
+
+    std::cout << "Solution for system Ax=b:\n";
+    for (std::size_t i = 0; i < solution.rows(); ++i)
+    {
+        std::cout << "x" << i << " = " << solution(i, 0) << "\n";
+    }
 
     return 0;
 }
