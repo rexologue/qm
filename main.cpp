@@ -1,5 +1,6 @@
 #include <cctype>
 #include <cmath>
+#include <format>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -428,20 +429,19 @@ namespace
         {
             x_next[i] += lambda * step[i];
         }
-
-        std::cout << "--------------------------------------------------\n";
-        std::cout << "Итерация " << k << "\n";
-        std::cout << "x^k = " << format_array(x) << "\n";
-        std::cout << "F(x^k) = " << format_array(column_matrix_to_array(fx)) << "\n";
-        std::cout << "||F|| = " << fx_norm << "\n";
-        std::cout << "s^k = " << format_array(step) << "\n";
-        std::cout << "||s|| = " << step_norm << "\n";
+        const std::string header = std::format(" Итерация {} ", k);
+        std::cout << std::format("\n{:-^70}\n", header);
+        std::cout << std::format("{:<14}{}\n", "x^k:", format_array(x));
+        std::cout << std::format("{:<14}{}\n", "F(x^k):", format_array(column_matrix_to_array(fx)));
+        std::cout << std::format("{:<14}{}\n", "||F||:", fx_norm);
+        std::cout << std::format("{:<14}{}\n", "s^k:", format_array(step));
+        std::cout << std::format("{:<14}{}\n", "||s||:", step_norm);
         if (damping_enabled)
         {
-            std::cout << "λ = " << lambda << "\n";
+            std::cout << std::format("{:<14}{}\n", "λ:", lambda);
         }
-        std::cout << "x^{k+1} = " << format_array(x_next) << "\n";
-        std::cout << "--------------------------------------------------\n";
+        std::cout << std::format("{:<14}{}\n", "x^{k+1}:", format_array(x_next));
+        std::cout << std::format("{:-^70}\n", "");
     }
 }
 
@@ -453,15 +453,15 @@ int main()
     {
         while (true)
         {
-            std::cout << "Меню:\n";
-            std::cout << "1) Метод Ньютона\n";
-            std::cout << "2) Модифицированный метод Ньютона (замороженный Якобиан)\n";
-            std::cout << "0) Выход\n";
+            std::cout << std::format("\n{:=^70}\n", " Меню ");
+            std::cout << "  1) Метод Ньютона\n";
+            std::cout << "  2) Модифицированный метод Ньютона (замороженный Якобиан)\n";
+            std::cout << "  0) Выход\n";
 
             const auto method_choice = read_number_in_range<int>("Выберите метод: ", 0, 2);
             if (method_choice == 0)
             {
-                std::cout << "Выход.\n";
+                std::cout << std::format("\n{}\n\n", "Выход.");
                 return 0;
             }
 
@@ -471,7 +471,7 @@ int main()
             T lambda = static_cast<T>(1);
             if (damping_enabled)
             {
-                std::cout << "Подсказка: x_{k+1} = x_k + λ * s_k\n";
+                std::cout << std::format("\n{}\n", "Подсказка: x_{k+1} = x_k + λ * s_k");
                 while (true)
                 {
                     std::cout << "Введите λ в диапазоне (0, 1], по умолчанию 1.0: ";
@@ -498,22 +498,23 @@ int main()
                 }
             }
 
-            std::cout << "Источник Якобиана:\n";
-            std::cout << "1) Численно (приближение)\n";
-            std::cout << "2) Ввести матрицу Якоби вручную\n";
+            std::cout << std::format("\n{:-^70}\n", " Источник Якобиана ");
+            std::cout << "  1) Численно (приближение)\n";
+            std::cout << "  2) Ввести матрицу Якоби вручную\n";
             const auto jacobian_choice = read_number_in_range<int>("Выберите режим: ", 1, 2);
             const JacobianMode jacobian_mode = (jacobian_choice == 1) ? JacobianMode::Numeric : JacobianMode::Manual;
 
             NumericFormula numeric_formula = NumericFormula::TwoPoint;
             if (jacobian_mode == JacobianMode::Numeric)
             {
-                std::cout << "Численная формула:\n";
-                std::cout << "1) Двухузловая (односторонняя разность)\n";
-                std::cout << "2) Трёхузловая (центральная разность)\n";
+                std::cout << std::format("\n{:-^70}\n", " Численная формула ");
+                std::cout << "  1) Двухузловая (односторонняя разность)\n";
+                std::cout << "  2) Трёхузловая (центральная разность)\n";
                 const auto formula_choice = read_number_in_range<int>("Выберите формулу: ", 1, 2);
                 numeric_formula = (formula_choice == 1) ? NumericFormula::TwoPoint : NumericFormula::ThreePoint;
             }
 
+            std::cout << std::format("\n{:-^70}\n", " Параметры остановки ");
             const std::size_t max_iter = read_positive_size("Введите max_iter: ");
             const T eps_F = read_number<T>("Введите eps_F: ");
             const T eps_x = read_number<T>("Введите eps_x: ");
@@ -527,14 +528,17 @@ int main()
                 return 1;
             }
 
-            std::cout << "Обнаружено уравнений: " << n << ". Требуется начальное приближение x0 длины " << n << ".\n";
-            auto x = read_vector<T>(n, "Введите x0 (" + std::to_string(n) + " чисел через пробел): ");
+            std::cout << std::format(
+                "\nОбнаружено уравнений: {}.\nТребуется начальное приближение x0 длины {}.\n",
+                n,
+                n);
+            auto x = read_vector<T>(n, std::format("Введите x0 ({} чисел через пробел): ", n));
 
             miv::matrix<T> J_manual;
             if (jacobian_mode == JacobianMode::Manual)
             {
                 J_manual = read_matrix<T>(n, "Введите матрицу Якоби (n x n) построчно:");
-                std::cout << "Введённая матрица Якоби:\n";
+                std::cout << std::format("\n{}\n", "Введённая матрица Якоби:");
                 print_matrix(J_manual);
             }
 
@@ -565,7 +569,7 @@ int main()
                 if (fx_norm < static_cast<miv::math::norm_t>(eps_F))
                 {
                     converged = true;
-                    std::cout << "Критерий ||F|| < eps_F выполнен.\n";
+                    std::cout << std::format("\n{}\n", "Критерий ||F|| < eps_F выполнен.");
                     break;
                 }
 
@@ -599,7 +603,7 @@ int main()
                 if (step_norm < step_threshold)
                 {
                     converged = true;
-                    std::cout << "Критерий ||s|| < eps_x * (1 + ||x||) выполнен.\n";
+                    std::cout << std::format("\n{}\n", "Критерий ||s|| < eps_x * (1 + ||x||) выполнен.");
                     break;
                 }
 
@@ -612,24 +616,31 @@ int main()
             auto fx_final = compute_F(x, functions);
             const auto fx_final_norm = miv::math::norm_l2(fx_final);
 
-            std::cout << "\n==================== Итог ====================\n";
-            std::cout << "Статус: " << (converged ? "сходимость достигнута" : "не сошлось") << "\n";
-            std::cout << "Итоговый x* = " << format_array(x) << "\n";
-            std::cout << "||F(x*)|| = " << fx_final_norm << "\n";
-            std::cout << "Итераций выполнено: " << iter_done << "\n";
-            std::cout << "Метод: " << ((method == Method::Newton) ? "Ньютон" : "Модифицированный Ньютон") << "\n";
-            std::cout << "Якобиан: " << ((jacobian_mode == JacobianMode::Numeric) ? "численный" : "ручной") << "\n";
+            std::cout << std::format("\n{:=^70}\n", " Итог ");
+            std::cout << std::format("{:<24}{}\n", "Статус:", converged ? "сходимость достигнута" : "не сошлось");
+            std::cout << std::format("{:<24}{}\n", "Итоговый x*:", format_array(x));
+            std::cout << std::format("{:<24}{}\n", "||F(x*)||:", fx_final_norm);
+            std::cout << std::format("{:<24}{}\n", "Итераций выполнено:", iter_done);
+            std::cout << std::format(
+                "{:<24}{}\n",
+                "Метод:",
+                (method == Method::Newton) ? "Ньютон" : "Модифицированный Ньютон");
+            std::cout << std::format(
+                "{:<24}{}\n",
+                "Якобиан:",
+                (jacobian_mode == JacobianMode::Numeric) ? "численный" : "ручной");
             if (jacobian_mode == JacobianMode::Numeric)
             {
-                std::cout << "Формула: " << ((numeric_formula == NumericFormula::TwoPoint)
-                    ? "двухузловая"
-                    : "трёхузловая") << "\n";
+                std::cout << std::format(
+                    "{:<24}{}\n",
+                    "Формула:",
+                    (numeric_formula == NumericFormula::TwoPoint) ? "двухузловая" : "трёхузловая");
             }
             if (damping_enabled)
             {
-                std::cout << "λ = " << lambda << "\n";
+                std::cout << std::format("{:<24}{}\n", "λ:", lambda);
             }
-            std::cout << "==============================================\n\n";
+            std::cout << std::format("{:=^70}\n\n", "");
         }
     }
     catch (const std::exception &ex)
