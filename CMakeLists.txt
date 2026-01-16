@@ -15,6 +15,6 @@ endforeach()
 add_subdirectory(containers)
 add_subdirectory(math)
 
-add_executable(my_prog main.cpp)
+add_executable(my_prog main.cpp functions.cpp)
 target_link_libraries(my_prog PRIVATE miv::containers miv::math)
 target_compile_features(my_prog PRIVATE cxx_std_23)
