@@ -23,6 +23,12 @@ namespace miv::math
     concept Number = std::is_arithmetic_v<T> && (!std::same_as<T, bool>);
 
     /**
+     * @brief Концепт "вещественный числовой тип".
+     */
+    template <typename T>
+    concept FloatNumber = Number<T> && std::is_floating_point_v<T>;
+
+    /**
      * @brief Тип для норм, скалярных произведений и т.п.
      *
      * Даже если матрица int, норму разумно возвращать как вещественную величину.
